@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import os
+from apiclient.discovery import build
 
 virtenv = os.environ['OPENSHIFT_PYTHON_DIR'] + '/virtenv/'
 virtualenv = os.path.join(virtenv, 'bin/activate_this.py')
