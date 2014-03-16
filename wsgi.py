@@ -77,7 +77,7 @@ def application(environ, start_response):
                     for playlist_item in playlistitems_list_response["items"]:
                         video_id = playlist_item["snippet"]["resourceId"]["videoId"]
                         video_id = (u"%s" % (video_id,)).encode("utf8", "replace")
-                        if not mongo_db.videos.find_one({ 'id': video_id}):
+                        if not mongo_db.videos.find_one({ '_id': video_id}):
                             authntitle = (u"%s" % playlist_item["snippet"]["title"]).encode("utf8", "replace")
                             if ":" in authntitle:
                                 authntitle = authntitle.split(":", 1)
