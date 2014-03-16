@@ -36,7 +36,7 @@ def application(environ, start_response):
             mongo_db = mongo_con[os.environ['OPENSHIFT_APP_NAME']]
             mongo_db.authenticate(os.environ['OPENSHIFT_MONGODB_DB_USERNAME'],
                                   os.environ['OPENSHIFT_MONGODB_DB_PASSWORD'])
-            delta_videos = mongo_db.videos.find({"date": {"$gt": timedelta}})
+            delta_videos = mongo_db.videos.find({"_date": {"$gt": timedelta}})
             g_response["videos"] = []
             for video in delta_videos:
                 g_response["videos"].append(video)
