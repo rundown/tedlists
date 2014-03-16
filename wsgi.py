@@ -94,8 +94,8 @@ def application(environ, start_response):
                     playlistitems_list_request = service.playlistItems().list_next(
                         playlistitems_list_request, playlistitems_list_response)
             g_response["count"] = g_counter
-            #last_count = mongo_db.info.find_one({"_id": "Counter"})["_value"]
-            mongo_db.info.insert(
+            last_count = mongo_db.info.find_one({"_id": "Counter"})["_value"]
+            mongo_db.info.update(
                 {'_id': "LastUpdate"},
                 {
                     '$set': {
@@ -116,7 +116,6 @@ def application(environ, start_response):
                         '_value': g_counter
                     }
                 })
-
             mongo_db.videos.create_index([("_timestamp", pymongo.DESCENDING)])
         except Exception as e:
             g_response["errorcode"] = 1
