@@ -29,6 +29,7 @@ def application(environ, start_response):
             #request = service.volumes().list(source='public', q='android')
             request = service.channels().list(forUsername=ted_youtube_username, part="contentDetails")
             channels_response = request.execute()
+            response = ""
             for channel in channels_response["items"]:
                 # From the API response, extract the playlist ID that identifies the list
                 # of videos uploaded to the authenticated user's channel.
