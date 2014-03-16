@@ -40,7 +40,7 @@ def application(environ, start_response):
             g_response["videos"] = []
             for video in delta_videos:
                 g_response["videos"].append(video)
-        g_response["timestamp"] = datetime.datetime.utcnow().total_seconds()
+        g_response["timestamp"] = datetime.datetime.utcnow().strftime("%s")
         response_body = json.dumps(g_response)
     elif environ['PATH_INFO'] == '/collector':
         g_counter = 0
