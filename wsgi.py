@@ -95,7 +95,7 @@ def application(environ, start_response):
                         playlistitems_list_request, playlistitems_list_response)
             g_response["count"] = g_counter
             #last_count = mongo_db.info.find_one({"_id": "Counter"})["_value"]
-            mongo_db.info.update(
+            mongo_db.info.insert(
                 {'_id': "LastUpdate"},
                 {
                     '$set': {
