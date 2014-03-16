@@ -36,7 +36,7 @@ def application(environ, start_response):
             mongo_db = mongo_con[os.environ['OPENSHIFT_APP_NAME']]
             mongo_db.authenticate(os.environ['OPENSHIFT_MONGODB_DB_USERNAME'],
                                   os.environ['OPENSHIFT_MONGODB_DB_PASSWORD'])
-            delta_videos = mongo_db.videos.find({"_date": {"$gt": timedelta}})
+            delta_videos = mongo_db.videos.find({"_timestamp": {"$gt": timedelta}})
             g_response["videos"] = []
             for video in delta_videos:
                 g_response["videos"].append(video)
@@ -94,7 +94,7 @@ def application(environ, start_response):
                     playlistitems_list_request = service.playlistItems().list_next(
                         playlistitems_list_request, playlistitems_list_response)
             g_response["count"] = g_counter
-            mongo_db.videos.create_index([("_date", pymongo.DESCENDING)])
+            mongo_db.videos.create_index([("_timestamp", pymongo.DESCENDING)])
         except Exception as e:
             g_response["errorcode"] = 1
             g_response["description"] = repr(e)
