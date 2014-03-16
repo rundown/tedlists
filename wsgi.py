@@ -358,15 +358,15 @@ pre {
                 <table>
                     <tr>
                         <td>Total Number of Videos</td>
-                        <td>{videos}</td>
+                        <td>%d</td>
                     </tr>
                     <tr>
                         <td>Last Updated</td>
-                        <td>{lastupdate}</td>
+                        <td>%s</td>
                     </tr>
                     <tr>
                         <td>Last Delta</td>
-                        <td>{lastdelta}</td>
+                        <td>%d</td>
                     </tr>
                 </table>
             </section>
@@ -395,7 +395,7 @@ pre {
         </footer>
 </section>
 </body>
-</html>'''.format(videos=total_videos, lastupdate=last_update, lastdelta=last_update_delta)
+</html>''' % (videos=total_videos, lastupdate=repr(last_update), lastdelta=last_update_delta)
 
     status = '200 OK'
     response_headers = [('Content-Type', ctype), ('Content-Length', str(len(response_body)))]
