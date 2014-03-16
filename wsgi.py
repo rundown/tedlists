@@ -30,6 +30,7 @@ def application(environ, start_response):
             request = service.channels().list(forUsername=ted_youtube_username, part="contentDetails")
             channels_response = request.execute()
             response = ""
+            counter=0
             for channel in channels_response["items"]:
                 # From the API response, extract the playlist ID that identifies the list
                 # of videos uploaded to the authenticated user's channel.
@@ -48,6 +49,7 @@ def application(environ, start_response):
                         title = playlist_item["snippet"]["title"]
                         video_id = playlist_item["snippet"]["resourceId"]["videoId"]
                         response = response + (u"%s (%s)" % (title, video_id)).encode("utf8","replace")
+                        counter=counter +1
                     playlistitems_list_request = service.playlistItems().list_next(
                         playlistitems_list_request, playlistitems_list_response)
         except Exception as e:
