@@ -50,7 +50,7 @@ def application(environ, start_response):
                     playlistitems_list_request = service.playlistItems().list_next(
                         playlistitems_list_request, playlistitems_list_response)
         except Exception as e:
-            response = e
+            response = repr(e)
         response_body = response #repr(response)
     elif environ['PATH_INFO'] == '/env':
         response_body = ['%s: %s' % (key, value)
