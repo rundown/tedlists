@@ -29,7 +29,7 @@ def application(environ, start_response):
             #request = service.volumes().list(source='public', q='android')
             request = service.channels().list(forUsername=ted_youtube_username, part="contentDetails")
             response = request.execute()
-            #response = response.items[0].relatedPlaylists.uploads
+            response = response.items[0]#.relatedPlaylists.uploads
         except Exception as e:
             response = e
         response_body = repr(response)
