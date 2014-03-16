@@ -28,11 +28,20 @@ def application(environ, start_response):
     if environ['PATH_INFO'] == '/health':
         response_body = "1"
     elif environ['PATH_INFO'] == '/data':
+        g_response = {}
         if "delta=" in environ['QUERY_STRING']:
             timedelta = datetime.datetime.utcfromtimestamp(float(environ['QUERY_STRING'].split("=")[1]))
-        else:
-            timedelta = datetime.datetime.utcfromtimestamp(float(0))
-        response_body = repr(timedelta)
+            mongo_con = pymongo.Connection(os.environ['OPENSHIFT_MONGODB_DB_HOST'],
+                               int(os.environ['OPENSHIFT_MONGODB_DB_PORT']))
+            mongo_db = mongo_con[os.environ['OPENSHIFT_APP_NAME']]
+            mongo_db.authenticate(os.environ['OPENSHIFT_MONGODB_DB_USERNAME'],
+                                  os.environ['OPENSHIFT_MONGODB_DB_PASSWORD'])
+            delta_videos = mongo_db.videos.find({"date": {"$gt": timedelta}})
+            g_response["videos"] = []
+            for video in delta_videos:
+                g_response["videos"].append(video)
+        g_response["timestamp"] = datetime.datetime.utcnow().total_seconds()
+        response_body = json.dumps(g_response)
     elif environ['PATH_INFO'] == '/collector':
         g_counter = 0
         g_response = {}
@@ -78,13 +87,14 @@ def application(environ, start_response):
                                 '_id': video_id,
                                 '_title': authntitle[0].strip(),
                                 '_author': authntitle[1].strip(),
-                                '_timestamp': datetime.datetime.today(),
+                                '_timestamp': datetime.datetime.utcnow(),
                             }
                             mongo_db.videos.insert(new_video)
                             g_counter = g_counter + 1
                     playlistitems_list_request = service.playlistItems().list_next(
                         playlistitems_list_request, playlistitems_list_response)
             g_response["count"] = g_counter
+            mongo_db.create_index([("_date", pymongo.DESCENDING)])
         except Exception as e:
             g_response["errorcode"] = 1
             g_response["description"] = repr(e)
