@@ -29,7 +29,26 @@ def application(environ, start_response):
             #request = service.volumes().list(source='public', q='android')
             request = service.channels().list(forUsername=ted_youtube_username, part="contentDetails")
             channels_response = request.execute()
-            response=channels_response
+            for channel in channels_response["items"]:
+                # From the API response, extract the playlist ID that identifies the list
+                # of videos uploaded to the authenticated user's channel.
+                uploads_list_id = channel["contentDetails"]["relatedPlaylists"]["uploads"]
+                response = response + "Videos in list %s" % uploads_list_id
+                # Retrieve the list of videos uploaded to the authenticated user's channel.
+                playlistitems_list_request = youtube.playlistItems().list(
+                    playlistId=uploads_list_id,
+                    part="snippet",
+                    maxResults=50
+                )
+                while playlistitems_list_request:
+                    playlistitems_list_response = playlistitems_list_request.execute()
+                    # Print information about each video.
+                    for playlist_item in playlistitems_list_response["items"]:
+                        title = playlist_item["snippet"]["title"]
+                        video_id = playlist_item["snippet"]["resourceId"]["videoId"]
+                        response = response + "%s (%s)" % (title, video_id)
+                    playlistitems_list_request = youtube.playlistItems().list_next(
+                        playlistitems_list_request, playlistitems_list_response)
         except Exception as e:
             response = e
         response_body = response #repr(response)
