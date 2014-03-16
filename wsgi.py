@@ -41,15 +41,7 @@ def application(environ, start_response):
                     part="snippet",
                     maxResults=50
                 )
-                while playlistitems_list_request:
-                    playlistitems_list_response = playlistitems_list_request.execute()
-                    # Print information about each video.
-                    for playlist_item in playlistitems_list_response["items"]:
-                        title = playlist_item["snippet"]["title"]
-                        video_id = playlist_item["snippet"]["resourceId"]["videoId"]
-                        response = response + "%s (%s)" % (title, video_id)
-                    playlistitems_list_request = service.playlistItems().list_next(
-                        playlistitems_list_request, playlistitems_list_response)
+
         except Exception as e:
             response = repr(e)
         response_body = response #repr(response)
