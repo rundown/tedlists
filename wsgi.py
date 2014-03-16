@@ -34,7 +34,7 @@ def application(environ, start_response):
                 # From the API response, extract the playlist ID that identifies the list
                 # of videos uploaded to the authenticated user's channel.
                 uploads_list_id = channel["contentDetails"]["relatedPlaylists"]["uploads"]
-                response = _(u"Videos in list %s" % uploads_list_id)
+                response = u"Videos in list %s" % uploads_list_id
                 # Retrieve the list of videos uploaded to the authenticated user's channel.
                 playlistitems_list_request = service.playlistItems().list(
                     playlistId=uploads_list_id,
