@@ -26,7 +26,8 @@ def application(environ, start_response):
         try:
             service = build('youtube', 'v3', developerKey=google_apikey)
             #request = service.volumes().list(source='public', q='android')
-            response = service #request.execute()
+            request = youtube.channels().list(mine=True, part="contentDetails")
+            response = request.execute()
         except Exception as e:
             response = e
         response_body = repr(response)
