@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import os
-from apiclient.discovery import build
 
 google_apikey = "AIzaSyBU6nQYqi_uEp4WzcUY7QOU-XDsFfFDCRQ"
 ted_youtube_username = "TEDtalksDirector"
@@ -18,24 +17,29 @@ except IOError:
 # line, it's possible required libraries won't be in your searchable path
 #
 
+import json
+from apiclient.discovery import build
+
 def application(environ, start_response):
 
     ctype = 'text/plain'
     if environ['PATH_INFO'] == '/health':
         response_body = "1"
-    elif environ['PATH_INFO'] == '/data':
+    elif environ['PATH_INFO'] == '/collector':
+        g_counter = 0
+        g_response = {}
+        g_response["errorcode"] = 0
+        g_response["playlist"] = []
         try:
             service = build('youtube', 'v3', developerKey=google_apikey)
             #request = service.volumes().list(source='public', q='android')
             request = service.channels().list(forUsername=ted_youtube_username, part="contentDetails")
             channels_response = request.execute()
-            response = ""
-            counter=0
             for channel in channels_response["items"]:
                 # From the API response, extract the playlist ID that identifies the list
                 # of videos uploaded to the authenticated user's channel.
                 uploads_list_id = channel["contentDetails"]["relatedPlaylists"]["uploads"]
-                response = response + str( u"Videos in list %s" % uploads_list_id )
+                g_response["playlists"].append(str( u"Videos in list %s" % uploads_list_id ))
                 # Retrieve the list of videos uploaded to the authenticated user's channel.
                 playlistitems_list_request = service.playlistItems().list(
                     playlistId=uploads_list_id,
@@ -48,13 +52,15 @@ def application(environ, start_response):
                     for playlist_item in playlistitems_list_response["items"]:
                         title = playlist_item["snippet"]["title"]
                         video_id = playlist_item["snippet"]["resourceId"]["videoId"]
-                        response = response + (u"%s (%s)" % (title, video_id)).encode("utf8","replace")
-                        counter=counter +1
+                        #response = response + (u"%s (%s)" % (title, video_id)).encode("utf8","replace")
+                        g_counter = g_counter + 1
                     playlistitems_list_request = service.playlistItems().list_next(
                         playlistitems_list_request, playlistitems_list_response)
+            g_response["count"] = g_counter
         except Exception as e:
-            response = repr(e)
-        response_body = repr(counter) + response #repr(response)
+            g_response["errorcode"] = 1
+            g_response["description"] = repr(e)
+        response_body = json.dumps(g_response) #repr(response)
     elif environ['PATH_INFO'] == '/env':
         response_body = ['%s: %s' % (key, value)
                     for key, value in sorted(environ.items())]
