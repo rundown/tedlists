@@ -18,6 +18,8 @@ except IOError:
 #
 
 import json
+import pymongo
+import datetime
 from apiclient.discovery import build
 
 def application(environ, start_response):
@@ -25,6 +27,12 @@ def application(environ, start_response):
     ctype = 'text/plain'
     if environ['PATH_INFO'] == '/health':
         response_body = "1"
+    elif environ['PATH_INFO'] == '/data':
+        if "delta=" in environ['QUERY_STRING']:
+            timedelta = datetime.datetime.utcfromtimestamp(float(environ['QUERY_STRING'].split("=")[1]))
+        else:
+            timedelta = datetime.datetime.utcfromtimestamp(float(0))
+        response_body = repr(timedelta)
     elif environ['PATH_INFO'] == '/collector':
         g_counter = 0
         g_response = {}
@@ -34,12 +42,20 @@ def application(environ, start_response):
             #request = service.volumes().list(source='public', q='android')
             request = service.channels().list(forUsername=ted_youtube_username, part="contentDetails")
             channels_response = request.execute()
-            g_response["playlists"] = []
+            g_response["channels"] = []
+            
+            # connect to mongodb
+            mongo_con = pymongo.Connection(os.environ['OPENSHIFT_MONGODB_DB_HOST'],
+                               int(os.environ['OPENSHIFT_MONGODB_DB_PORT']))
+            mongo_db = mongo_con[os.environ['OPENSHIFT_APP_NAME']]
+            mongo_db.authenticate(os.environ['OPENSHIFT_MONGODB_DB_USERNAME'],
+                                  os.environ['OPENSHIFT_MONGODB_DB_PASSWORD'])
+
             for channel in channels_response["items"]:
                 # From the API response, extract the playlist ID that identifies the list
                 # of videos uploaded to the authenticated user's channel.
                 uploads_list_id = channel["contentDetails"]["relatedPlaylists"]["uploads"]
-                g_response["playlists"].append(str( u"Videos in list %s" % uploads_list_id ))
+                g_response["channels"].append(str( u"%s" % uploads_list_id ))
                 # Retrieve the list of videos uploaded to the authenticated user's channel.
                 playlistitems_list_request = service.playlistItems().list(
                     playlistId=uploads_list_id,
@@ -50,10 +66,22 @@ def application(environ, start_response):
                     playlistitems_list_response = playlistitems_list_request.execute()
                     # Print information about each video.
                     for playlist_item in playlistitems_list_response["items"]:
-                        title = playlist_item["snippet"]["title"]
                         video_id = playlist_item["snippet"]["resourceId"]["videoId"]
-                        #response = response + (u"%s (%s)" % (title, video_id)).encode("utf8","replace")
-                        g_counter = g_counter + 1
+                        video_id = (u"%s" % (video_id,)).encode("utf8", "replace")
+                        if not mongo_db.videos.find_one({ 'id': video_id}):
+                            authntitle = (u"%s" % playlist_item["snippet"]["title"]).encode("utf8", "replace")
+                            if ":" in authntitle:
+                                authntitle = authntitle.split(":", 1)
+                            else:
+                                authntitle = [authntitle, ""]
+                            new_video = {
+                                '_id': video_id,
+                                '_title': authntitle[0].strip(),
+                                '_author': authntitle[1].strip(),
+                                '_timestamp': datetime.datetime.today(),
+                            }
+                            mongo_db.videos.insert(new_video)
+                            g_counter = g_counter + 1
                     playlistitems_list_request = service.playlistItems().list_next(
                         playlistitems_list_request, playlistitems_list_response)
             g_response["count"] = g_counter
