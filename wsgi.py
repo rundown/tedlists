@@ -54,7 +54,7 @@ def application(environ, start_response):
                         playlistitems_list_request, playlistitems_list_response)
         except Exception as e:
             response = repr(e)
-        response_body = response #repr(response)
+        response_body = repr(counter) + response #repr(response)
     elif environ['PATH_INFO'] == '/env':
         response_body = ['%s: %s' % (key, value)
                     for key, value in sorted(environ.items())]
