@@ -121,10 +121,12 @@ def application(environ, start_response):
             g_response["errorcode"] = 1
             g_response["description"] = repr(e)
         response_body = json.dumps(g_response) #repr(response)
+        '''
     elif environ['PATH_INFO'] == '/env':
         response_body = ['%s: %s' % (key, value)
                     for key, value in sorted(environ.items())]
         response_body = '\n'.join(response_body)
+        '''
     else:
         ctype = 'text/html'
         mongo_con = pymongo.Connection(os.environ['OPENSHIFT_MONGODB_DB_HOST'],
