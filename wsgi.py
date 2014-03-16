@@ -358,15 +358,15 @@ pre {
                 <table>
                     <tr>
                         <td>Total Number of Videos</td>
-                        <td>''' + total_videos + '''</td>
+                        <td>''' + str(total_videos) + '''</td>
                     </tr>
                     <tr>
                         <td>Last Updated</td>
-                        <td>''' + repr(last_update) + '''</td>
+                        <td>''' + str(last_update) + '''</td>
                     </tr>
                     <tr>
                         <td>Last Delta</td>
-                        <td>''' + last_update_delta + '''</td>
+                        <td>''' + str(last_update_delta) + '''</td>
                     </tr>
                 </table>
             </section>
