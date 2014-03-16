@@ -47,7 +47,7 @@ def application(environ, start_response):
                     for playlist_item in playlistitems_list_response["items"]:
                         title = playlist_item["snippet"]["title"]
                         video_id = playlist_item["snippet"]["resourceId"]["videoId"]
-                        response = response + str(u"%s (%s)" % (title, video_id))
+                        response = response + (u"%s (%s)" % (title, video_id)).encode("utf8","replace")
                     playlistitems_list_request = service.playlistItems().list_next(
                         playlistitems_list_request, playlistitems_list_response)
         except Exception as e:
