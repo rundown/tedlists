@@ -4,6 +4,7 @@ import os
 from apiclient.discovery import build
 
 google_apikey = "AIzaSyBU6nQYqi_uEp4WzcUY7QOU-XDsFfFDCRQ"
+ted_youtube_username = "TEDtalksDirector"
 
 virtenv = os.environ['OPENSHIFT_PYTHON_DIR'] + '/virtenv/'
 virtualenv = os.path.join(virtenv, 'bin/activate_this.py')
@@ -24,9 +25,9 @@ def application(environ, start_response):
         response_body = "1"
     elif environ['PATH_INFO'] == '/data':
         try:
-            service = build('youtube', 'v3', developerKey=google_apikey)
+            service = build('youtube', 'v3') #, developerKey=google_apikey)
             #request = service.volumes().list(source='public', q='android')
-            request = service.channels().list(mine=True, part="contentDetails")
+            request = service.channels().list(forUsername=ted_youtube_username, part="contentDetails")
             response = request.execute()
         except Exception as e:
             response = e
