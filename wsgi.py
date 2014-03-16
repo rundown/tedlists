@@ -94,7 +94,7 @@ def application(environ, start_response):
                     playlistitems_list_request = service.playlistItems().list_next(
                         playlistitems_list_request, playlistitems_list_response)
             g_response["count"] = g_counter
-            mongo_db.create_index([("_date", pymongo.DESCENDING)])
+            mongo_db.videos.create_index([("_date", pymongo.DESCENDING)])
         except Exception as e:
             g_response["errorcode"] = 1
             g_response["description"] = repr(e)
