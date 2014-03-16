@@ -32,7 +32,7 @@ def application(environ, start_response):
             response = response.items[0].contentDetails.relatedPlaylists.uploads
         except Exception as e:
             response = e
-        response_body = repr(response)
+        response_body = response #repr(response)
     elif environ['PATH_INFO'] == '/env':
         response_body = ['%s: %s' % (key, value)
                     for key, value in sorted(environ.items())]
