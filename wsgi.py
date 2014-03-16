@@ -94,6 +94,29 @@ def application(environ, start_response):
                     playlistitems_list_request = service.playlistItems().list_next(
                         playlistitems_list_request, playlistitems_list_response)
             g_response["count"] = g_counter
+            last_count = mongo_db.info.find_one({"_id": "Counter"})["_value"]
+            mongo_db.info.update(
+                {'_id': "LastUpdate"},
+                {
+                    '$set': {
+                        '_value': datetime.datetime.utcnow()
+                    }
+                })
+            mongo_db.info.update(
+                {'_id': "LastDelta"},
+                {
+                    '$set': {
+                        '_value': g_counter
+                    }
+                })
+            mongo_db.info.update(
+                {'_id': "Counter"},
+                {
+                    '$inc': {
+                        '_value': g_counter
+                    }
+                })
+
             mongo_db.videos.create_index([("_timestamp", pymongo.DESCENDING)])
         except Exception as e:
             g_response["errorcode"] = 1
@@ -105,6 +128,14 @@ def application(environ, start_response):
         response_body = '\n'.join(response_body)
     else:
         ctype = 'text/html'
+        mongo_con = pymongo.Connection(os.environ['OPENSHIFT_MONGODB_DB_HOST'],
+                               int(os.environ['OPENSHIFT_MONGODB_DB_PORT']))
+        mongo_db = mongo_con[os.environ['OPENSHIFT_APP_NAME']]
+        mongo_db.authenticate(os.environ['OPENSHIFT_MONGODB_DB_USERNAME'],
+                              os.environ['OPENSHIFT_MONGODB_DB_PASSWORD'])
+        total_videos = mongo_db.info.find_one({"_id": "Counter"})["_value"]
+        last_update = mongo_db.info.find_one({"_id": "LastUpdate"})["_value"]
+        last_update_delta = mongo_db.info.find_one({"_id": "LastDelta"})["_value"]
         response_body = '''<!doctype html>
 <html lang="en">
 <head>
@@ -323,6 +354,23 @@ pre {
                 <p>This app here stores list of TED Talk videos taken from Youtube.</p>
 
             </section>
+            <section>
+            <h2>Current Stats</h2>
+                <table>
+                    <tr>
+                        <td>Total Number of Videos</td>
+                        <td>{videos}</td>
+                    </tr>
+                    <tr>
+                        <td>Last Updated</td>
+                        <td>{lastupdate}</td>
+                    </tr>
+                    <tr>
+                        <td>Last Delta</td>
+                        <td>{lastdelta}</td>
+                    </tr>
+                </table>
+            </section>
 
           </section>
           <section class="col-xs-12 col-sm-6 col-md-6">
@@ -348,7 +396,7 @@ pre {
         </footer>
 </section>
 </body>
-</html>'''
+</html>'''.format(videos=total_videos, lastupdate=last_update, lastdelta=last_update_delta)
 
     status = '200 OK'
     response_headers = [('Content-Type', ctype), ('Content-Length', str(len(response_body)))]
