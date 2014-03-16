@@ -29,12 +29,12 @@ def application(environ, start_response):
         g_counter = 0
         g_response = {}
         g_response["errorcode"] = 0
-        g_response["playlist"] = []
         try:
             service = build('youtube', 'v3', developerKey=google_apikey)
             #request = service.volumes().list(source='public', q='android')
             request = service.channels().list(forUsername=ted_youtube_username, part="contentDetails")
             channels_response = request.execute()
+            g_response["playlists"] = []
             for channel in channels_response["items"]:
                 # From the API response, extract the playlist ID that identifies the list
                 # of videos uploaded to the authenticated user's channel.
