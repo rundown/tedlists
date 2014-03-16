@@ -395,7 +395,8 @@ pre {
         </footer>
 </section>
 </body>
-</html>''' % (videos=total_videos, lastupdate=repr(last_update), lastdelta=last_update_delta)
+</html>'''
+    response_body = response_body % (total_videos, repr(last_update), last_update_delta)
 
     status = '200 OK'
     response_headers = [('Content-Type', ctype), ('Content-Length', str(len(response_body)))]
