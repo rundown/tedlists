@@ -3,7 +3,7 @@
 import os
 from apiclient.discovery import build
 
-APIKEY = "AIzaSyBU6nQYqi_uEp4WzcUY7QOU-XDsFfFDCRQ"
+google_apikey = "AIzaSyBU6nQYqi_uEp4WzcUY7QOU-XDsFfFDCRQ"
 
 virtenv = os.environ['OPENSHIFT_PYTHON_DIR'] + '/virtenv/'
 virtualenv = os.path.join(virtenv, 'bin/activate_this.py')
@@ -23,9 +23,12 @@ def application(environ, start_response):
     if environ['PATH_INFO'] == '/health':
         response_body = "1"
     elif environ['PATH_INFO'] == '/data':
-        service = build('books', 'v1', developerKey=APIKEY)
-        request = service.volumes().list(source='public', q='android')
-        response = request.execute()
+        try:
+            service = build('books', 'v1', developerKey=google_apikey)
+            request = service.volumes().list(source='public', q='android')
+            response = request.execute()
+        except Exception as e:
+            response = e
         response_body = repr(response)
     elif environ['PATH_INFO'] == '/env':
         response_body = ['%s: %s' % (key, value)
