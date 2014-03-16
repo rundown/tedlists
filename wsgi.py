@@ -1,9 +1,13 @@
 #!/usr/bin/python
+
 import os
 from apiclient.discovery import build
 
+APIKEY = "AIzaSyBU6nQYqi_uEp4WzcUY7QOU-XDsFfFDCRQ"
+
 virtenv = os.environ['OPENSHIFT_PYTHON_DIR'] + '/virtenv/'
 virtualenv = os.path.join(virtenv, 'bin/activate_this.py')
+
 try:
     execfile(virtualenv, dict(__file__=virtualenv))
 except IOError:
@@ -18,6 +22,11 @@ def application(environ, start_response):
     ctype = 'text/plain'
     if environ['PATH_INFO'] == '/health':
         response_body = "1"
+    elif environ['PATH_INFO'] == '/data':
+        service = build('books', 'v1', developerKey=APIKEY)
+        request = service.volumes().list(source='public', q='android')
+        response = request.execute()
+        response_body = repr(response)
     elif environ['PATH_INFO'] == '/env':
         response_body = ['%s: %s' % (key, value)
                     for key, value in sorted(environ.items())]
