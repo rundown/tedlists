@@ -25,8 +25,8 @@ def application(environ, start_response):
     elif environ['PATH_INFO'] == '/data':
         try:
             service = build('youtube', 'v3', developerKey=google_apikey)
-            request = service.volumes().list(source='public', q='android')
-            response = request.execute()
+            #request = service.volumes().list(source='public', q='android')
+            response = service #request.execute()
         except Exception as e:
             response = e
         response_body = repr(response)
