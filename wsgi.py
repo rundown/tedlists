@@ -25,7 +25,7 @@ def application(environ, start_response):
         response_body = "1"
     elif environ['PATH_INFO'] == '/data':
         try:
-            service = build('youtube', 'v3') #, developerKey=google_apikey)
+            service = build('youtube', 'v3', developerKey=google_apikey)
             #request = service.volumes().list(source='public', q='android')
             request = service.channels().list(forUsername=ted_youtube_username, part="contentDetails")
             response = request.execute()
