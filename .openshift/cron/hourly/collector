@@ -1,0 +1,14 @@
+#!/bin/bash
+
+
+HOURS=`date +%H`
+
+for i in "00" "06" "12" "18";do
+    if [ "$HOURS" == "$i" ];then
+        (
+            echo -e "-------------------------\n" >> collector.log
+	    date >> $OPENSHIFT_PYTHON_LOG_DIR/collector.log
+            nohup wget --timeout=600 --tries=5 -0 http://tedlists-gulluman.rhcloud.com/collector >> $OPENSHIFT_PYTHON_LOG_DIR/collector.log&
+        )
+    fi
+done
