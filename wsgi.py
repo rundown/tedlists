@@ -2,7 +2,7 @@
 
 import os
 
-google_apikey = "AIzaSyBU6nQYqi_uEp4WzcUY7QOU-XDsFfFDCRQ"
+google_apikey = "Your Google API key"
 ted_youtube_username = "TEDtalksDirector"
 
 virtenv = os.environ['OPENSHIFT_PYTHON_DIR'] + '/virtenv/'
